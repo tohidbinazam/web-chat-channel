@@ -176,7 +176,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
   res
     .cookie('token', JWTToken, {
       maxAge: 12 * 30 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === 'production' ? true : false,
+      secure: process.env.NODE_ENV === 'PRODUCTION' ? true : false,
     })
     .status(200)
     .json({
