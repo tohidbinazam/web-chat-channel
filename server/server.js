@@ -89,7 +89,6 @@ io.on('connection', (socket) => {
 });
 
 if (process.env.NODE_ENV === 'PRODUCTION') {
-  console.log('Production mode');
   app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
   app.get('*', (req, res) =>
