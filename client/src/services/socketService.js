@@ -4,7 +4,11 @@ import { setMessages, setNewMessage } from '../features/chat/chatSlice';
 let socket;
 
 export const initializeSocket = () => {
-  socket = io(import.meta.env.VITE_APP_API_URL);
+  socket = io(
+    import.meta.env.VITE_APP_ENV !== 'PRODUCTION'
+      ? import.meta.env.VITE_APP_API_URL
+      : undefined
+  );
 };
 
 export const connectSocket = () => {
