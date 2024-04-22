@@ -89,10 +89,11 @@ io.on('connection', (socket) => {
 });
 
 if (process.env.NODE_ENV === 'PRODUCTION') {
-  app.use(express.static(path.join(__dirname, '/client/dist')));
+  console.log('Production mode');
+  app.use(express.static(path.join(__dirname, 'client', 'dist')));
 
   app.get('*', (req, res) =>
-    res.sendFile(path.join(__dirname, '/client/dist/index.html'))
+    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
   );
 }
 
