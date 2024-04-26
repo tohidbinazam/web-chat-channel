@@ -18,10 +18,11 @@ import { selectChannel } from '../features/channel/channelSlice';
 import calculateEndDate, {
   isoToDatePicker,
 } from '../utils/subscription/calculateEndDate';
+import isValidEmail from '../utils/validator/isValidEmail';
 
 const User = () => {
   const dispatch = useDispatch();
-  const { users, message, error } = useSelector(selectUser);
+  const { users, message, error, loading } = useSelector(selectUser);
   const { channels } = useSelector(selectChannel);
 
   const [input, inputProps, form, setValue] = vtexInput({
@@ -29,8 +30,10 @@ const User = () => {
     name: '',
     email: '',
     password: '',
+    mobile: '',
     subscription: [],
   });
+  new DataTable('#userTable');
 
   const handelSubscription = (e) => {
     const { name, value } = e.target;
@@ -104,12 +107,14 @@ const User = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!input.name || !input.email || !input.password) {
-      return toast.error('Please fill all the fields');
+    if (!input.name || !input.email || !input.password || !input.mobile) {
+      return toast.error('Please fill all required fields');
     }
-    delete input.id;
-    dispatch(addUser(input));
-    form.clear();
+    if (emailValidation()) {
+      delete input.id;
+      dispatch(addUser(input));
+      form.clear();
+    }
   };
 
   const handleDelete = (id) => {
@@ -134,6 +139,7 @@ const User = () => {
       id: item._id,
       name: item.name,
       email: item.email,
+      mobile: item.mobile,
       subscription: item.subscription,
     });
   };
@@ -142,8 +148,10 @@ const User = () => {
     if (!input.password) {
       delete input.password;
     }
-    dispatch(updateUser({ id: input.id, data: input }));
-    form.clear();
+    if (emailValidation()) {
+      dispatch(updateUser({ id: input.id, data: input }));
+      form.clear();
+    }
   };
 
   const handleStatus = (item) => {
@@ -153,15 +161,17 @@ const User = () => {
   useEffect(() => {
     if (message) {
       toast.success(message);
-      dispatch(clearMsg());
     }
     if (error) {
       toast.error(error);
-      dispatch(clearMsg());
     }
-    dispatch(getAllUser());
-    new DataTable('#userTable');
+
+    dispatch(clearMsg());
   }, [dispatch, error, message]);
+
+  useEffect(() => {
+    dispatch(getAllUser());
+  }, [dispatch]);
 
   const handleSubscriptionStatus = (item) => {
     const existingSubscriptionIndex = input.subscription.findIndex(
@@ -177,6 +187,14 @@ const User = () => {
 
       setValue({ subscription: updatedSubscription });
     }
+  };
+
+  const emailValidation = () => {
+    if (input.email && !isValidEmail(input.email)) {
+      toast.error('Please enter a valid email');
+      return false;
+    }
+    return true;
   };
 
   return (
@@ -214,7 +232,9 @@ const User = () => {
             <div className='row form-row'>
               <div className='col-12 col-sm-12'>
                 <div className='form-group'>
-                  <label>Name</label>
+                  <label>
+                    Name<b className='text-danger'>*</b>
+                  </label>
                   <input
                     {...inputProps('name', 'text')}
                     placeholder='User Full name'
@@ -222,20 +242,41 @@ const User = () => {
                   />
                 </div>
                 <div className='form-group'>
-                  <label>Email</label>
+                  <label>
+                    Email<b className='text-danger'>*</b>
+                  </label>
                   <input
                     {...inputProps('email', 'email')}
                     placeholder='User email'
                     className='form-control'
+                    onBlur={emailValidation}
                   />
                 </div>
-                <div className='form-group'>
-                  <label>Password</label>
-                  <input
-                    {...inputProps('password', 'password')}
-                    placeholder='User password'
-                    className='form-control'
-                  />
+                <div className='row'>
+                  <div className='col-12 col-sm-6'>
+                    <div className='form-group'>
+                      <label>
+                        Password<b className='text-danger'>*</b>
+                      </label>
+                      <input
+                        {...inputProps('password', 'password')}
+                        placeholder='User password'
+                        className='form-control'
+                      />
+                    </div>
+                  </div>
+                  <div className='col-12 col-sm-6'>
+                    <div className='form-group'>
+                      <label>
+                        Mobile<b className='text-danger'>*</b>
+                      </label>
+                      <input
+                        {...inputProps('mobile', 'text')}
+                        placeholder='User mobile number'
+                        className='form-control'
+                      />
+                    </div>
+                  </div>
                 </div>
                 <div className='form-group'>
                   <label>Subscription</label>
@@ -342,71 +383,75 @@ const User = () => {
                 <h4 className='card-title'>User List</h4>
               </div>
               <div className='card-body'>
-                <div className='table-responsive'>
-                  <table
-                    className='datatable table table-hover table-center mb-0'
-                    id='userTable'
-                  >
-                    <thead>
-                      <tr>
-                        <th>No</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        {/* <th>Role</th> */}
-                        <th>UpdatedAt</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users?.map((item, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{item.name}</td>
-                          <td>{item.email}</td>
-                          {/* <td>{item.role.name}</td> */}
-                          <td>{timeCal(item.updatedAt)}</td>
-
-                          <td>
-                            <div className='status-toggle'>
-                              <input
-                                type='checkbox'
-                                id={item._id}
-                                className='check'
-                                checked={item.status}
-                                onChange={() => {
-                                  handleStatus(item);
-                                }}
-                              />
-                              <label htmlFor={item._id} className='checktoggle'>
-                                checkbox
-                              </label>
-                            </div>
-                          </td>
-                          <td>
-                            <div className='actions'>
-                              <button
-                                className='btn btn-sm bg-success-light me-2'
-                                data-bs-target='#addUser'
-                                data-bs-toggle='modal'
-                                onClick={() => handleEditModal(item)}
-                              >
-                                <i className='fe fe-pencil'></i> Edit
-                              </button>
-                              <button
-                                data-bs-toggle='modal'
-                                className='btn btn-sm bg-danger-light'
-                                onClick={() => handleDelete(item._id)}
-                              >
-                                <i className='fe fe-trash'></i> Delete
-                              </button>
-                            </div>
-                          </td>
+                {!loading && (
+                  <div className='table-responsive'>
+                    <table
+                      className='datatable table table-hover table-center mb-0'
+                      id='userTable'
+                    >
+                      <thead>
+                        <tr>
+                          <th>No</th>
+                          <th>Name</th>
+                          <th>Email</th>
+                          {/* <th>Role</th> */}
+                          <th>UpdatedAt</th>
+                          <th>Status</th>
+                          <th>Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {users?.map((item, index) => (
+                          <tr key={index}>
+                            <td>{index + 1}</td>
+                            <td>{item.name}</td>
+                            <td>{item.email}</td>
+                            {/* <td>{item.role.name}</td> */}
+                            <td>{timeCal(item.updatedAt)}</td>
+
+                            <td>
+                              <div className='status-toggle'>
+                                <input
+                                  type='checkbox'
+                                  id={item._id}
+                                  className='check'
+                                  checked={item.status}
+                                  onChange={() => {
+                                    handleStatus(item);
+                                  }}
+                                />
+                                <label
+                                  htmlFor={item._id}
+                                  className='checktoggle'
+                                >
+                                  checkbox
+                                </label>
+                              </div>
+                            </td>
+                            <td>
+                              <div className='actions'>
+                                <button
+                                  className='btn btn-sm bg-success-light me-2'
+                                  data-bs-target='#addUser'
+                                  data-bs-toggle='modal'
+                                  onClick={() => handleEditModal(item)}
+                                >
+                                  <i className='fe fe-pencil'></i> Edit
+                                </button>
+                                <button
+                                  className='btn btn-sm bg-danger-light'
+                                  onClick={() => handleDelete(item._id)}
+                                >
+                                  <i className='fe fe-trash'></i> Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </div>

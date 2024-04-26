@@ -7,15 +7,14 @@ import Subscription from '../model/subscriptionModel.js';
 
 // User create controller
 export const createUser = asyncHandler(async (req, res) => {
-  const { name, email, password, subscription } = req.body;
-  console.log(subscription);
+  const { name, email, password, subscription, mobile } = req.body;
 
   const findUser = await User.findOne({ email });
   if (findUser) {
     return res.status(400).json({ message: 'User already exists' });
   }
 
-  const newUser = await User.create({ name, email, password });
+  const newUser = await User.create({ name, email, password, mobile });
 
   // Create each subscription in subscription collection asynchronously
   const createdSubscriptions = await Promise.all(
@@ -102,7 +101,7 @@ export const deleteUserById = asyncHandler(async (req, res) => {
 // Update user by id controller
 export const updateUserById = asyncHandler(async (req, res) => {
   const id = req.params.id;
-  const { name, email, password, subscription, status } = req.body;
+  const { name, email, password, mobile, subscription, status } = req.body;
 
   if (status !== undefined) {
     const user = await User.findByIdAndUpdate(id, { status }, { new: true })
@@ -119,7 +118,7 @@ export const updateUserById = asyncHandler(async (req, res) => {
 
   const user = await User.findByIdAndUpdate(
     id,
-    { name, email, password },
+    { name, email, password, mobile },
     { new: true }
   ).select('-password');
 

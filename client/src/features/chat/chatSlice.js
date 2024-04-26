@@ -21,9 +21,6 @@ const chatSlice = createSlice({
       state.message = null;
       state.error = null;
     },
-    setSocket: (state, { payload }) => {
-      state.socket = payload;
-    },
     setMessages: (state, { payload }) => {
       state.chats[payload.slug] = payload.data;
     },
@@ -85,7 +82,6 @@ const chatSlice = createSlice({
 
 export const selectChat = (state) => state.chat;
 
-export const { clearMsg, setSocket, setMessages, setNewMessage } =
-  chatSlice.actions;
+export const { clearMsg, setMessages, setNewMessage } = chatSlice.actions;
 
 export default chatSlice.reducer;

@@ -24,16 +24,17 @@ const adminModel = Schema(
       required: true,
     },
     birth: {
-      type: String,
+      type: Date,
+      max: Date.now() - 15 * 365 * 24 * 60 * 60 * 1000,
     },
     mobile: {
       type: String,
       unique: true,
+      required: true,
       trim: true,
     },
     address: {
       type: String,
-      trim: true,
       trim: true,
     },
     role: {

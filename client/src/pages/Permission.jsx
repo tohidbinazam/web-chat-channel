@@ -66,17 +66,18 @@ const Permission = () => {
     );
   };
 
-  if (message) {
-    toast.success(message);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+    }
+    if (error) {
+      toast.error(error);
+    }
+
     dispatch(clearMsg());
-  }
-  if (error) {
-    toast.error(error);
-    dispatch(clearMsg());
-  }
+  }, [dispatch, error, message]);
 
   useEffect(() => {
-    console.log('Permission');
     dispatch(getAllPermission());
   }, [dispatch]);
   return (
@@ -114,7 +115,9 @@ const Permission = () => {
             <div className='row form-row'>
               <div className='col-12 col-sm-12'>
                 <div className='form-group'>
-                  <label>Name</label>
+                  <label>
+                    Name<b className='text-danger'>*</b>
+                  </label>
                   <input
                     type='text'
                     name='name'
@@ -160,35 +163,33 @@ const Permission = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {permission
-                          ?.filter((item) => item.slug !== 'permission')
-                          .map((item, index) => (
-                            <tr key={item._id}>
-                              <td>{index + 1}</td>
-                              <td>{item.name}</td>
-                              <td>{item.slug}</td>
-                              <td>{timeCal(item.updatedAt)}</td>
+                        {permission?.map((item, index) => (
+                          <tr key={item._id}>
+                            <td>{index + 1}</td>
+                            <td>{item.name}</td>
+                            <td>{item.slug}</td>
+                            <td>{timeCal(item.updatedAt)}</td>
 
-                              <td>
-                                <div className='status-toggle'>
-                                  <input
-                                    type='checkbox'
-                                    id={item._id}
-                                    className='check'
-                                    checked={item.status}
-                                  />
-                                  <label
-                                    htmlFor={item._id}
-                                    className='checktoggle'
-                                    onClick={() => {
-                                      handleStatus(item);
-                                    }}
-                                  >
-                                    checkbox
-                                  </label>
-                                </div>
-                              </td>
-                              {/* <td>
+                            <td>
+                              <div className='status-toggle'>
+                                <input
+                                  type='checkbox'
+                                  id={item._id}
+                                  className='check'
+                                  checked={item.status}
+                                  onChange={() => {
+                                    handleStatus(item);
+                                  }}
+                                />
+                                <label
+                                  htmlFor={item._id}
+                                  className='checktoggle'
+                                >
+                                  checkbox
+                                </label>
+                              </div>
+                            </td>
+                            {/* <td>
                               <div className='actions'>
                                 <button
                                   className='btn btn-sm bg-success-light me-2'
@@ -199,7 +200,6 @@ const Permission = () => {
                                   <i className='fe fe-pencil'></i> Edit
                                 </button>
                                 <button
-                                  data-bs-toggle='modal'
                                   className='btn btn-sm bg-danger-light'
                                   onClick={() => handleDelete(item._id)}
                                 >
@@ -207,8 +207,8 @@ const Permission = () => {
                                 </button>
                               </div>
                             </td> */}
-                            </tr>
-                          ))}
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>

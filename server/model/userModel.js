@@ -14,8 +14,10 @@ const userModel = Schema(
       unique: true,
       trim: true,
     },
-    number: {
+    mobile: {
       type: String,
+      required: true,
+      unique: true,
       trim: true,
     },
     password: {

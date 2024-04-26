@@ -110,14 +110,14 @@ const Profile = () => {
                 </div>
                 <div className='col ml-md-n2 profile-user-info'>
                   <h4 className='user-name mb-0'>
-                    {admin.first_nm} {admin.last_nm}
+                    {admin?.first_nm} {admin?.last_nm}
                   </h4>
-                  <h5>{admin.role.name}</h5>
+                  <h6>{admin?.role.name}</h6>
                   <div className='user-Location'>
-                    <i className='fa fa-map-marker'></i> {admin.address}
+                    <i className='fa fa-map-marker'></i> {admin?.address}
                   </div>
                   <div className='about-text'>
-                    <i className='fa fa-envelope'></i> {admin.email}
+                    <i className='fa fa-envelope'></i> {admin?.email}
                   </div>
                 </div>
                 <div className='col-auto profile-btn'>
@@ -176,32 +176,32 @@ const Profile = () => {
                             Name
                           </p>
                           <p className='col-sm-10'>
-                            {admin.first_nm} {admin.last_nm}
+                            {admin?.first_nm} {admin?.last_nm}
                           </p>
                         </div>
                         <div className='row'>
                           <p className='col-sm-2 text-muted text-sm-end mb-0 mb-sm-3'>
                             Date of Birth
                           </p>
-                          <p className='col-sm-10'>{admin.birth}</p>
+                          <p className='col-sm-10'>{admin?.birth}</p>
                         </div>
                         <div className='row'>
                           <p className='col-sm-2 text-muted text-sm-end mb-0 mb-sm-3'>
                             Email ID
                           </p>
-                          <p className='col-sm-10'>{admin.email}</p>
+                          <p className='col-sm-10'>{admin?.email}</p>
                         </div>
                         <div className='row'>
                           <p className='col-sm-2 text-muted text-sm-end mb-0 mb-sm-3'>
                             Mobile
                           </p>
-                          <p className='col-sm-10'>{admin.mobile}</p>
+                          <p className='col-sm-10'>{admin?.mobile}</p>
                         </div>
                         <div className='row'>
                           <p className='col-sm-2 text-muted text-sm-end mb-0'>
                             Address
                           </p>
-                          <p className='col-sm-10 mb-0'>{admin.address}</p>
+                          <p className='col-sm-10 mb-0'>{admin?.address}</p>
                         </div>
                       </div>
                     </div>

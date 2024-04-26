@@ -13,7 +13,6 @@ import {
   unsubscribeFromReceiveMessage,
   unsubscribeFromSetMessage,
 } from '../services/socketService';
-import { getAllRole } from '../features/admin/adminApiSlice';
 import { getAllChannel } from '../features/channel/channelApiSlice';
 
 const Layout = () => {
@@ -39,7 +38,6 @@ const Layout = () => {
     connectSocket();
     subscribeToReceiveMessage(dispatch);
     subscribeToSetMessage(dispatch);
-    dispatch(getAllRole());
     dispatch(getAllChannel());
 
     return () => {

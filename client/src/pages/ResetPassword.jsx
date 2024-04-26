@@ -24,7 +24,6 @@ const ResetPassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.password || !input.c_password) {
-      console.log(input);
       return toast.error('All fields are required');
     }
     if (input.password !== input.c_password) {

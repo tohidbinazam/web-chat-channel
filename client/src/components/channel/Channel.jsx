@@ -13,7 +13,7 @@ const Channel = () => {
   const dispatch = useDispatch();
 
   const { chats } = useSelector(selectChat);
-  const { admin } = useSelector(selectAuth);
+  const { admin, permissions } = useSelector(selectAuth);
   const [message, setMessage] = useState('');
   const [limit, setLimit] = useState(20);
 
@@ -42,8 +42,13 @@ const Channel = () => {
     if (!chats[slug]) {
       joinChannel(slug, limit);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
+
+  useEffect(() => {
     scrollToBottom();
-  }, [chats, limit, slug]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chats[slug]?.messages]);
 
   return (
     <div className='page-wrapper'>
@@ -56,7 +61,7 @@ const Channel = () => {
                   <div className='card-body'>
                     <div className='message-container'>
                       <div className='d-flex justify-content-center'>
-                        {chats[slug]?.messages.length < chats[slug]?.count && (
+                        {chats[slug]?.count > limit && (
                           <button
                             type='button'
                             className='btn btn-primary btn-sm'
@@ -117,7 +122,8 @@ const Channel = () => {
                     </div>
 
                     <hr />
-                    {admin?.role.name === 'Admin' && (
+                    {(admin?.role.slug === 'super-admin' ||
+                      permissions?.some((p) => p.slug === 'channels')) && (
                       <div className='send-box'>
                         <input
                           onKeyUp={(e) => e.key === 'Enter' && handleSend()}

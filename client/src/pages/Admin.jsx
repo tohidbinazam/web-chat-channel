@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import vtexInput from 'vtex-input';
 import { selectAuth } from '../features/auth/authSlice';
+import isValidEmail from '../utils/validator/isValidEmail';
 
 const Admin = () => {
   const dispatch = useDispatch();
@@ -36,12 +37,20 @@ const Admin = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!input.first_nm || !input.email || !input.password || !input.role) {
+    if (
+      !input.first_nm ||
+      !input.email ||
+      !input.password ||
+      !input.mobile ||
+      !input.role
+    ) {
       return toast.error('Please fill all required fields');
     }
-    delete input.id;
-    dispatch(addAdmin(input));
-    form.clearFrom();
+    if (emailValidation() && dateOfBirthValidation()) {
+      delete input.id;
+      dispatch(addAdmin(input));
+      form.clear();
+    }
   };
 
   const handleDelete = (id, role) => {
@@ -78,8 +87,10 @@ const Admin = () => {
     if (!input.password) {
       delete input.password;
     }
-    dispatch(updateAdmin({ id: input.id, data: input }));
-    form.clearFrom();
+    if (emailValidation() && dateOfBirthValidation()) {
+      dispatch(updateAdmin({ id: input.id, data: input }));
+      form.clear();
+    }
   };
   const handleStatus = (item) => {
     dispatch(updateAdmin({ id: item._id, data: { status: !item.status } }));
@@ -93,17 +104,37 @@ const Admin = () => {
   useEffect(() => {
     if (message) {
       toast.success(message);
-      dispatch(clearMsg());
     }
     if (error) {
       toast.error(error);
-      dispatch(clearMsg());
     }
+
+    dispatch(clearMsg());
   }, [dispatch, error, message]);
 
   useEffect(() => {
     dispatch(getAllAdmin());
   }, [dispatch]);
+
+  const emailValidation = () => {
+    if (input.email && !isValidEmail(input.email)) {
+      toast.error('Please enter a valid email');
+      return false;
+    }
+    return true;
+  };
+
+  const dateOfBirthValidation = () => {
+    if (
+      input.birth &&
+      new Date(input.birth) >
+        new Date(Date.now() - 15 * 365 * 24 * 60 * 60 * 1000)
+    ) {
+      toast.error('Admin must be at least 15 years old');
+      return false;
+    }
+    return true;
+  };
 
   return (
     <div className='page-wrapper'>
@@ -140,7 +171,9 @@ const Admin = () => {
             <div className='row form-row'>
               <div className='col-12 col-sm-6'>
                 <div className='form-group'>
-                  <label>First Name</label>
+                  <label>
+                    First Name<b className='text-danger'>*</b>
+                  </label>
                   <input
                     {...inputProps('first_nm', 'text')}
                     placeholder='First Name'
@@ -160,17 +193,22 @@ const Admin = () => {
               </div>
               <div className='col-12'>
                 <div className='form-group'>
-                  <label>Email ID</label>
+                  <label>
+                    Email ID<b className='text-danger'>*</b>
+                  </label>
                   <input
                     {...inputProps('email', 'email')}
                     placeholder='Email Address'
                     className='form-control'
+                    onBlur={emailValidation}
                   />
                 </div>
               </div>
               <div className='col-12'>
                 <div className='form-group'>
-                  <label>Password</label>
+                  <label>
+                    Password<b className='text-danger'>*</b>
+                  </label>
                   <input
                     {...inputProps('password', 'password')}
                     placeholder='Strong Unique Password'
@@ -193,13 +231,16 @@ const Admin = () => {
                     <input
                       {...inputProps('birth', 'date')}
                       className='form-control'
+                      onBlur={dateOfBirthValidation}
                     />
                   </div>
                 </div>
               </div>
               <div className='col-12 col-sm-6'>
                 <div className='form-group'>
-                  <label>Mobile</label>
+                  <label>
+                    Mobile<b className='text-danger'>*</b>
+                  </label>
                   <input
                     {...inputProps('mobile', 'tel')}
                     placeholder='Mobile Number'
@@ -224,7 +265,9 @@ const Admin = () => {
               </div>
               <div className='col-12'>
                 <div className='form-group'>
-                  <label className='text-danger fw-bold'>Role</label>
+                  <label className='text-danger fw-bold'>
+                    Role<b className='text-danger'>*</b>
+                  </label>
                   <select {...inputProps('role')} className='form-control'>
                     <option value=''>Select Role</option>
                     {role?.map((item) => (
@@ -240,6 +283,7 @@ const Admin = () => {
               type='submit'
               data-bs-dismiss='modal'
               className='btn btn-primary w-100'
+              disabled={loading}
             >
               Save Changes
             </button>
@@ -290,13 +334,13 @@ const Admin = () => {
                                     id={item._id}
                                     className='check'
                                     checked={item.status}
+                                    onChange={() => {
+                                      handleStatus(item);
+                                    }}
                                   />
                                   <label
                                     htmlFor={item._id}
                                     className='checktoggle'
-                                    onClick={() => {
-                                      handleStatus(item);
-                                    }}
                                   >
                                     checkbox
                                   </label>
@@ -313,7 +357,6 @@ const Admin = () => {
                                     <i className='fe fe-pencil'></i> Edit
                                   </button>
                                   <button
-                                    data-bs-toggle='modal'
                                     className='btn btn-sm bg-danger-light'
                                     onClick={() =>
                                       handleDelete(item._id, item.role.name)

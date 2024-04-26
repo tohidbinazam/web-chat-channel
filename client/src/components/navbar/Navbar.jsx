@@ -13,7 +13,7 @@ const Navbar = ({ handleExpand }) => {
   );
 
   const { channels } = useSelector(selectChannel);
-  const { admin } = useSelector(selectAuth);
+  const { admin, permissions } = useSelector(selectAuth);
 
   const handleSubMenu = () => {
     setIsSubMenuOpen(!isSubMenuOpen);
@@ -36,17 +36,19 @@ const Navbar = ({ handleExpand }) => {
             <li className='menu-title'>
               <span>Main</span>
             </li>
-            {admin?.role.name === 'Admin' && (
-              <li
-                onClick={() => handleActive('dashboard')}
-                className={activeItem === 'dashboard' ? 'active' : ''}
-              >
-                <Link to='/'>
-                  <i className='fe fe-home'></i> <span>Dashboard</span>
-                </Link>
-              </li>
-            )}
-            {admin?.role.name === 'Admin' && (
+            {/* {(admin?.role.slug === 'super-admin' ||
+              permissions?.some((p) => p.slug === 'dashboard')) && ( */}
+            <li
+              onClick={() => handleActive('dashboard')}
+              className={activeItem === 'dashboard' ? 'active' : ''}
+            >
+              <Link to='/'>
+                <i className='fe fe-home'></i> <span>Dashboard</span>
+              </Link>
+            </li>
+            {/* )} */}
+            {(admin?.role.slug === 'super-admin' ||
+              permissions?.some((p) => p.slug === 'user')) && (
               <li
                 onClick={() => handleActive('user')}
                 className={activeItem === 'user' ? 'active' : ''}
@@ -56,7 +58,7 @@ const Navbar = ({ handleExpand }) => {
                 </Link>
               </li>
             )}
-            {admin?.role.name === 'Admin' && (
+            {admin?.role.slug === 'super-admin' && (
               <li
                 onClick={() => handleActive('admin')}
                 className={activeItem === 'admin' ? 'active' : ''}
@@ -67,7 +69,7 @@ const Navbar = ({ handleExpand }) => {
                 </Link>
               </li>
             )}
-            {admin?.role.name === 'Admin' && (
+            {admin?.role.slug === 'super-admin' && (
               <li
                 onClick={() => handleActive('permission')}
                 className={activeItem === 'permission' ? 'active' : ''}
@@ -78,7 +80,7 @@ const Navbar = ({ handleExpand }) => {
                 </Link>
               </li>
             )}
-            {admin?.role.name === 'Admin' && (
+            {admin?.role.slug === 'super-admin' && (
               <li
                 onClick={() => handleActive('role')}
                 className={activeItem === 'role' ? 'active' : ''}
@@ -88,28 +90,33 @@ const Navbar = ({ handleExpand }) => {
                 </Link>
               </li>
             )}
-            <li className='submenu'>
-              <Link
-                onClick={() => {
-                  handleSubMenu();
-                  handleActive('channel');
-                }}
-                className={`${activeItem === 'channel' ? 'active' : ''} ${
-                  isSubMenuOpen && 'subdrop'
-                }`}
-                to='/channel'
-              >
-                <i className='fe fe-layout'></i> <span> Channels </span>
-                <span className='menu-arrow'></span>
-              </Link>
-              <ul style={{ display: isSubMenuOpen ? 'block' : 'none' }}>
-                {channels.map((channel, index) => (
-                  <li key={index}>
-                    <Link to={`/channel/${channel.slug}`}>{channel.name}</Link>
-                  </li>
-                ))}
-              </ul>
-            </li>
+            {(admin?.role.slug === 'super-admin' ||
+              permissions?.some((p) => p.slug === 'channels')) && (
+              <li className='submenu'>
+                <Link
+                  onClick={() => {
+                    handleSubMenu();
+                    handleActive('channel');
+                  }}
+                  className={`${activeItem === 'channel' ? 'active' : ''} ${
+                    isSubMenuOpen && 'subdrop'
+                  }`}
+                  to='/channels'
+                >
+                  <i className='fe fe-layout'></i> <span> Channels </span>
+                  <span className='menu-arrow'></span>
+                </Link>
+                <ul style={{ display: isSubMenuOpen ? 'block' : 'none' }}>
+                  {channels.map((channel, index) => (
+                    <li key={index}>
+                      <Link to={`/channel/${channel.slug}`}>
+                        {channel.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            )}
           </ul>
         </div>
       </div>

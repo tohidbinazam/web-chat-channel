@@ -4,6 +4,7 @@ import photo from '../../assets/img/profiles/avatar-01.jpg';
 import { useDispatch, useSelector } from 'react-redux';
 import { userLogout } from '../../features/auth/authApiSlice';
 import { Link } from 'react-router-dom';
+// import { disconnectSocket } from '../../services/socketService';
 
 // eslint-disable-next-line react/prop-types
 const Header = ({ handleNav }) => {
@@ -13,17 +14,18 @@ const Header = ({ handleNav }) => {
   const handleLogout = (e) => {
     e.preventDefault();
     dispatch(userLogout());
+    // disconnectSocket();
   };
 
   return (
     <div className='header'>
       <div className='header-left'>
-        <a href='index.html' className='logo'>
+        <Link to='/' className='logo'>
           <img src={logo} alt='Logo' />
-        </a>
-        <a href='index.html' className='logo logo-small'>
+        </Link>
+        <Link to='/' className='logo logo-small'>
           <img src={smallLogo} alt='Logo' width='30' height='30' />
-        </a>
+        </Link>
       </div>
 
       <a href='#' onClick={handleNav} id='toggle_btn'>

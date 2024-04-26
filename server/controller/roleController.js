@@ -1,5 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import Role from '../model/roleModel.js';
+import Admin from '../model/adminModel.js';
 
 // Role create controller
 export const createRole = asyncHandler(async (req, res) => {
@@ -18,7 +19,7 @@ export const createRole = asyncHandler(async (req, res) => {
 
 // Get all roles controller
 export const getAllRoles = asyncHandler(async (req, res) => {
-  const roles = await Role.find()
+  const roles = await Role.find({ slug: { $ne: 'super-admin' } })
     .populate('permissions')
     .sort({ createdAt: -1 });
   res.status(200).json(roles);
@@ -41,12 +42,19 @@ export const getRoleById = asyncHandler(async (req, res) => {
 export const deleteRoleById = asyncHandler(async (req, res) => {
   const id = req.params.id;
 
-  const role = await Role.findByIdAndDelete(id);
-  if (!role) {
-    res.status(404);
-    throw new Error('Role not found');
+  // Check if any user uses this role
+  const userWithRole = await Admin.findOne({ role: id }, '_id');
+  if (userWithRole) {
+    return res.status(400).json({ message: 'Role already in use' });
   }
 
+  // Delete the role
+  const role = await Role.findByIdAndDelete(id);
+  if (!role) {
+    return res.status(404).json({ message: 'Role not found' });
+  }
+
+  // Role deleted successfully
   res.status(200).json({ message: 'Role deleted successfully', role });
 });
 

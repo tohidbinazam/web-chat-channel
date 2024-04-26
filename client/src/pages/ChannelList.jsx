@@ -4,7 +4,7 @@ import DataTable from 'datatables.net-dt';
 import {
   addChannel,
   deleteChannel,
-  // getAllChannel,
+  getAllChannel,
   updateChannel,
 } from '../features/channel/channelApiSlice';
 import { clearMsg, selectChannel } from '../features/channel/channelSlice';
@@ -17,11 +17,12 @@ import { Link } from 'react-router-dom';
 
 const ChannelList = () => {
   const dispatch = useDispatch();
-  const { channels, message, error } = useSelector(selectChannel);
+  const { channels, message, error, loading } = useSelector(selectChannel);
 
   const [input, setInput, inputChange, clearFrom] = useInput({
     name: '',
   });
+  new DataTable('#channelTable');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,16 +33,16 @@ const ChannelList = () => {
     clearFrom();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id, name) => {
     swal({
       title: 'Are you sure?',
-      text: 'Once deleted, you will not be able to recover this imaginary file!',
+      text: `Once deleted, you will not be able to recover ${name} channel and it's messages!`,
       icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete) {
-        swal('Poof! Your imaginary file has been deleted!', {
+        swal(`Poof! ${name} channel has been deleted!`, {
           icon: 'success',
         });
         dispatch(deleteChannel(id));
@@ -61,17 +62,19 @@ const ChannelList = () => {
     dispatch(updateChannel({ id: item._id, data: { status: !item.status } }));
   };
 
-  if (message) {
-    toast.success(message);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+    }
+    if (error) {
+      toast.error(error);
+    }
+
     dispatch(clearMsg());
-  }
-  if (error) {
-    toast.error(error);
-    dispatch(clearMsg());
-  }
+  }, [dispatch, error, message]);
 
   useEffect(() => {
-    new DataTable('#channelTable');
+    dispatch(getAllChannel());
   }, [dispatch]);
   return (
     <div className='page-wrapper'>
@@ -108,7 +111,9 @@ const ChannelList = () => {
             <div className='row form-row'>
               <div className='col-12 col-sm-12'>
                 <div className='form-group'>
-                  <label>Name</label>
+                  <label>
+                    Name<b className='text-danger'>*</b>
+                  </label>
                   <input
                     type='text'
                     name='name'
@@ -137,69 +142,75 @@ const ChannelList = () => {
                 <h4 className='card-title'>Channel List</h4>
               </div>
               <div className='card-body'>
-                <div className='table-responsive'>
-                  <table
-                    className='datatable table table-hover table-center mb-0'
-                    id='channelTable'
-                  >
-                    <thead>
-                      <tr>
-                        <th>No</th>
-                        <th>Name</th>
-                        <th>Slug</th>
-                        <th>UpdatedAt</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {channels?.map((item, index) => (
-                        <tr key={item._id}>
-                          <td>{index + 1}</td>
-                          <td>{item.name}</td>
-                          <td>{item.slug}</td>
-                          <td>{timeCal(item.updatedAt)}</td>
-
-                          <td>
-                            <div className='status-toggle'>
-                              <input
-                                type='checkbox'
-                                id={item._id}
-                                className='check'
-                                checked={item.status}
-                                onChange={() => {
-                                  handleStatus(item);
-                                }}
-                              />
-                              <label htmlFor={item._id} className='checktoggle'>
-                                checkbox
-                              </label>
-                            </div>
-                          </td>
-                          <td>
-                            <div className='actions'>
-                              <button
-                                className='btn btn-sm bg-success-light me-2'
-                                data-bs-target='#addChannel'
-                                data-bs-toggle='modal'
-                                onClick={() => handleEditModal(item)}
-                              >
-                                <i className='fe fe-pencil'></i> Edit
-                              </button>
-                              <button
-                                data-bs-toggle='modal'
-                                className='btn btn-sm bg-danger-light'
-                                onClick={() => handleDelete(item._id)}
-                              >
-                                <i className='fe fe-trash'></i> Delete
-                              </button>
-                            </div>
-                          </td>
+                {!loading && (
+                  <div className='table-responsive'>
+                    <table
+                      className='datatable table table-hover table-center mb-0'
+                      id='channelTable'
+                    >
+                      <thead>
+                        <tr>
+                          <th>No</th>
+                          <th>Name</th>
+                          <th>Slug</th>
+                          <th>UpdatedAt</th>
+                          <th>Status</th>
+                          <th>Action</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {channels?.map((item, index) => (
+                          <tr key={item._id}>
+                            <td>{index + 1}</td>
+                            <td>{item.name}</td>
+                            <td>{item.slug}</td>
+                            <td>{timeCal(item.updatedAt)}</td>
+
+                            <td>
+                              <div className='status-toggle'>
+                                <input
+                                  type='checkbox'
+                                  id={item._id}
+                                  className='check'
+                                  checked={item.status}
+                                  onChange={() => {
+                                    handleStatus(item);
+                                  }}
+                                />
+                                <label
+                                  htmlFor={item._id}
+                                  className='checktoggle'
+                                >
+                                  checkbox
+                                </label>
+                              </div>
+                            </td>
+                            <td>
+                              <div className='actions'>
+                                <button
+                                  className='btn btn-sm bg-success-light me-2'
+                                  data-bs-target='#addChannel'
+                                  data-bs-toggle='modal'
+                                  onClick={() => handleEditModal(item)}
+                                >
+                                  <i className='fe fe-pencil'></i> Edit
+                                </button>
+                                <button
+                                  className='btn btn-sm bg-danger-light'
+                                  onClick={() =>
+                                    handleDelete(item._id, item.name)
+                                  }
+                                >
+                                  <i className='fe fe-trash'></i> Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </div>

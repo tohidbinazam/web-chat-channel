@@ -4,7 +4,7 @@ import DataTable from 'datatables.net-dt';
 import {
   addRole,
   deleteRole,
-  // getAllRole,
+  getAllRole,
   updateRole,
 } from '../features/admin/adminApiSlice';
 import { clearMsg, selectAdmin } from '../features/admin/adminSlice';
@@ -23,29 +23,27 @@ const Role = () => {
     name: '',
     permissions: [],
   });
+  new DataTable('#roleTable');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.name) {
-      return toast.error('Please fill all the fields');
+      return toast.error('Please fill the "Name" field');
     }
-    console.log(input);
     dispatch(addRole(input));
     clearFrom();
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleDelete = (id) => {
     swal({
       title: 'Are you sure?',
-      text: 'Once deleted, you will not be able to recover this imaginary file!',
+      text: 'Once deleted, you will not be able to recover this role!',
       icon: 'warning',
       buttons: true,
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete) {
-        swal('Poof! Your imaginary file has been deleted!', {
-          icon: 'success',
-        });
         dispatch(deleteRole(id));
       }
     });
@@ -60,6 +58,9 @@ const Role = () => {
   };
   const handleEdit = (e) => {
     e.preventDefault();
+    if (!input.name) {
+      return toast.error('Please fill the "Name" field');
+    }
     dispatch(updateRole({ id: input.id, data: input }));
     clearFrom();
   };
@@ -83,17 +84,19 @@ const Role = () => {
     }
   };
 
-  if (message) {
-    toast.success(message);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+    }
+    if (error) {
+      toast.error(error);
+    }
+
     dispatch(clearMsg());
-  }
-  if (error) {
-    toast.error(error);
-    dispatch(clearMsg());
-  }
+  }, [dispatch, error, message]);
 
   useEffect(() => {
-    new DataTable('#roleTable');
+    dispatch(getAllRole());
   }, [dispatch]);
 
   return (
@@ -131,7 +134,9 @@ const Role = () => {
             <div className='row form-row'>
               <div className='col-12 col-sm-12'>
                 <div className='form-group'>
-                  <label>Name</label>
+                  <label>
+                    Name<b className='text-danger'>*</b>
+                  </label>
                   <input
                     type='text'
                     name='name'
@@ -152,7 +157,7 @@ const Role = () => {
                         value={item._id}
                         id={index}
                         checked={input.permissions?.includes(item._id)}
-                        onClick={handleCheckbox}
+                        onChange={handleCheckbox}
                       />
                       <label className='form-check-label' htmlFor={index}>
                         {item.name}
@@ -196,7 +201,7 @@ const Role = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {role?.map((item, index) => (
+                      {role.map((item, index) => (
                         <tr key={item._id}>
                           <td>{index + 1}</td>
                           <td>{item.name}</td>
@@ -217,14 +222,11 @@ const Role = () => {
                                 id={item._id}
                                 className='check'
                                 checked={item.status}
-                              />
-                              <label
-                                htmlFor={item._id}
-                                className='checktoggle'
-                                onClick={() => {
+                                onChange={() => {
                                   handleStatus(item);
                                 }}
-                              >
+                              />
+                              <label htmlFor={item._id} className='checktoggle'>
                                 checkbox
                               </label>
                             </div>
@@ -240,7 +242,6 @@ const Role = () => {
                                 <i className='fe fe-pencil'></i> Edit
                               </button>
                               <button
-                                data-bs-toggle='modal'
                                 className='btn btn-sm bg-danger-light'
                                 onClick={() => handleDelete(item._id)}
                               >

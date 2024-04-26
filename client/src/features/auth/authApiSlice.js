@@ -22,21 +22,26 @@ export const loginAdmin = createAsyncThunk(
   async (data, { dispatch }) => {
     try {
       const res = await api.post('/auth/login', data);
-      if (res.data) {
+      if (res.data.admin.role.slug == 'super-admin') {
         dispatch(getAllAdmin());
         dispatch(getAllPermission());
         dispatch(getAllRole());
-        return res.data;
       }
+      return res.data;
     } catch (error) {
       throw new Error(error.response.data.message);
     }
   }
 );
 
-export const me = createAsyncThunk('auth/me', async () => {
+export const me = createAsyncThunk('auth/me', async (_, { dispatch }) => {
   try {
     const res = await api.get('/auth/me');
+    if (res.data.role.slug == 'super-admin') {
+      dispatch(getAllAdmin());
+      dispatch(getAllPermission());
+      dispatch(getAllRole());
+    }
     return res.data;
   } catch (error) {
     throw new Error(error.response.data.message);

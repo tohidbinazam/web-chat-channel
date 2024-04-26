@@ -8,6 +8,7 @@ import Admin from '../pages/Admin';
 import Profile from '../pages/Profile';
 import ChannelList from '../pages/ChannelList';
 import Channel from '../components/channel/Channel';
+import SuperAdminGard from './gard/SuperAdminGard';
 
 const PrivateRouter = [
   {
@@ -25,27 +26,28 @@ const PrivateRouter = [
             element: <User />,
           },
           {
-            path: '/permission',
-            element: <Permission />,
-          },
-          {
-            path: '/role',
-            element: <Role />,
-          },
-          {
-            path: '/admin',
-            element: <Admin />,
+            element: <SuperAdminGard />,
+            children: [
+              {
+                path: '/admin',
+                element: <Admin />,
+              },
+              {
+                path: '/role',
+                element: <Role />,
+              },
+              {
+                path: '/permission',
+                element: <Permission />,
+              },
+            ],
           },
           {
             path: '/profile',
             element: <Profile />,
           },
           {
-            path: '/profile',
-            element: <Profile />,
-          },
-          {
-            path: '/channel',
+            path: '/channels',
             element: <ChannelList />,
           },
           {
