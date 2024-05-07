@@ -1,9 +1,8 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { log } from 'console';
 
-const adminModel = Schema(
+const Admin = Schema(
   {
     first_nm: {
       type: String,
@@ -57,7 +56,7 @@ const adminModel = Schema(
 );
 
 // make password hash before save
-adminModel.pre('save', function (next) {
+Admin.pre('save', function (next) {
   if (!this.isModified('password')) {
     return next();
   }
@@ -67,18 +66,18 @@ adminModel.pre('save', function (next) {
 });
 
 // compare password
-adminModel.methods.matchPassword = function (password) {
+Admin.methods.matchPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-adminModel.methods.removePass = function () {
+Admin.methods.removePass = function () {
   const admin = this.toObject();
   delete admin.password;
   return admin;
 };
 
 // make getResetPasswordToken
-adminModel.methods.getResetPasswordToken = function () {
+Admin.methods.getResetPasswordToken = function () {
   const resetToken = crypto.randomBytes(20).toString('hex');
   this.resetPasswordToken = crypto
     .createHash('sha256')
@@ -88,4 +87,4 @@ adminModel.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-export default model('Admin', adminModel);
+export default model('Admin', Admin);

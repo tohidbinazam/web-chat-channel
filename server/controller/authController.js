@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import Admin from '../model/adminModel.js';
+import Admin from '../models/Admin.js';
 import { generateToken } from '../utility/manageToken.js';
 import bcrypt from 'bcryptjs';
 import sendEmail from '../utility/sendEmail.js';
@@ -21,19 +21,35 @@ export const register = asyncHandler(async (req, res) => {
 
 // Admin login controller
 export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  // check status key value
-  const init_admin = await Admin.findOne({ email });
+  const { email, password, next } = req.body;
 
-  if (!init_admin || !init_admin.matchPassword(password)) {
+  // Find the admin by email and populate the role
+  const admin = await Admin.findOne({ email }).populate('role', 'status');
+
+  // Check if admin exists and if the password matches
+  if (!admin || !admin.matchPassword(password)) {
     return res.status(400).json({ message: 'Invalid email or password' });
   }
 
-  if (!init_admin.status) {
-    return res.status(400).json({ message: 'Please contact with admin' });
+  // Check if the admin's status is active
+  if (!admin.status) {
+    return res.status(400).json({ message: 'Please contact the admin' });
   }
 
-  const data = await init_admin.populate({
+  // Check if the admin's role is active
+  if (!admin.role || !admin.role.status) {
+    return res.status(400).json({ message: 'Your role is inactive' });
+  }
+
+  // Check if the admin is already logged in another device
+  if (!next && admin.token) {
+    return res
+      .status(406)
+      .json({ message: 'You are already logged in another device' });
+  }
+
+  // Populate role permissions and generate token
+  await admin.populate({
     path: 'role',
     populate: {
       path: 'permissions',
@@ -41,21 +57,29 @@ export const login = asyncHandler(async (req, res) => {
     },
   });
 
-  const token = generateToken(data._id, '365d');
-  const admin = data.removePass();
+  const token = generateToken(admin._id, '365d');
+
+  // Save the token to the admin and send it in a cookie
+  admin.token = token;
+  await admin.save();
+
+  // No need to select fields here, as they were already excluded in the findOne() query
 
   res
     .cookie('token', token, {
-      maxAge: 12 * 30 * 24 * 60 * 60 * 1000,
-      secure: process.env.NODE_ENV === 'PRODUCTION' ? true : false,
+      maxAge: 12 * 30 * 24 * 60 * 60 * 1000, // 1 year
+      secure: process.env.NODE_ENV === 'PRODUCTION', // Using uppercase "PRODUCTION"
+      // httpOnly: true,  Ensures the cookie is only accessible via HTTP(S)
     })
     .status(200)
-    .json({ message: 'Login successfully', admin });
+    .json({ message: 'Login successful', admin: admin.removePass() });
 });
 
 // Admin logout controller
 export const logout = asyncHandler(async (req, res) => {
-  res.clearCookie('token').status(200).json({ message: 'Logout successfully' });
+  const { id } = req.data;
+  await Admin.findByIdAndUpdate(id, { token: null });
+  res.clearCookie('token').status(200).json({ message: 'Logout successful' });
 });
 
 export const me = asyncHandler(async (req, res) => {
@@ -104,6 +128,9 @@ export const changePassword = asyncHandler(async (req, res) => {
   await admin.save();
 
   res.status(200).json({ message: 'Password changed successfully' });
+
+  const message = `Hi ${admin.first_nm}, your password has been changed successfully.`;
+  await sendEmail(admin.email, 'Password changed', message);
 });
 
 export const updateProfile = asyncHandler(async (req, res) => {
@@ -204,4 +231,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
       message: 'Login successfully after reset password',
       admin: final_admin,
     });
+
+  const message = `Your password has been reset successfully. If you did not initiate this request, please contact the admin immediately.`;
+  await sendEmail(admin.email, 'Password reset successful', message);
 });

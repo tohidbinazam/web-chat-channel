@@ -217,7 +217,7 @@ const Admin = () => {
                   <a href='#'>
                     <span
                       onClick={handelRandomPass}
-                      className='badge text-bg-primary cursor-pointer'
+                      className='badge text-bg-primary'
                     >
                       Random password
                     </span>
@@ -285,7 +285,7 @@ const Admin = () => {
               className='btn btn-primary w-100'
               disabled={loading}
             >
-              Save Changes
+              {input.id ? 'Save Changes' : 'Add Admin'}
             </button>
           </form>
         </DefaultModal>

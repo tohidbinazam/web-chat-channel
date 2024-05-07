@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const channelModel = Schema(
+const Channel = Schema(
   {
     name: {
       type: String,
@@ -23,7 +23,7 @@ const channelModel = Schema(
 );
 
 // add slug before save
-channelModel.pre('save', function (next) {
+Channel.pre('save', function (next) {
   if (!this.isModified('name')) {
     next();
   }
@@ -32,8 +32,8 @@ channelModel.pre('save', function (next) {
 });
 
 // make slug
-channelModel.methods.makeSlug = function () {
+Channel.methods.makeSlug = function () {
   return this.name.toLowerCase().split(' ').join('-');
 };
 
-export default model('Channel', channelModel);
+export default model('Channel', Channel);

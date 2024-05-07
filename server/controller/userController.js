@@ -1,13 +1,14 @@
 import asyncHandler from 'express-async-handler';
-import User from '../model/userModel.js';
+import User from '../models/User.js';
 import sendEmail from '../utility/sendEmail.js';
 import bcrypt from 'bcryptjs';
-import Message from '../model/messageModel.js';
-import Subscription from '../model/subscriptionModel.js';
+import Message from '../models/Message.js';
+import Subscription from '../models/Subscription.js';
 
 // User create controller
 export const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, subscription, mobile } = req.body;
+  console.log(password);
 
   const findUser = await User.findOne({ email });
   if (findUser) {
@@ -158,4 +159,48 @@ export const updateUserById = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json({ message: 'User updated successfully', user: updatedUser });
+});
+
+export const findUser = asyncHandler(async (req, res) => {
+  const { email, mobile } = req.body;
+
+  if (!email && !mobile) {
+    res.status(400);
+    throw new Error('Please provide email or mobile number');
+  }
+
+  let user;
+  let foundBy;
+
+  if (email) {
+    user = await User.findOne({ email })
+      .select('-password -token')
+      .populate('subscription');
+    if (user) {
+      foundBy = 'email';
+    }
+  }
+
+  if (!user && mobile) {
+    user = await User.findOne({ mobile })
+      .select('-password -token')
+      .populate('subscription');
+    if (user) {
+      foundBy = 'mobile';
+    }
+  }
+
+  if (!user) {
+    res.status(404);
+    throw new Error('No user Found');
+  }
+
+  let message;
+  if (foundBy === 'email') {
+    message = 'User found via Email';
+  } else if (foundBy === 'mobile') {
+    message = 'User found via Mobile';
+  }
+
+  res.status(200).json({ user, message });
 });

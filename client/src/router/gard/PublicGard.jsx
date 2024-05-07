@@ -1,9 +1,10 @@
 import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
+import { selectAuth } from '../../features/auth/authSlice';
 
 const PublicGard = () => {
-  const { token } = useSelector((state) => state.auth);
-  return !token ? <Outlet /> : <Navigate to='/' />;
+  const { isLoggedIn } = useSelector(selectAuth);
+  return !isLoggedIn ? <Outlet /> : <Navigate to='/' />;
 };
 
 export default PublicGard;

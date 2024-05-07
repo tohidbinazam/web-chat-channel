@@ -11,6 +11,11 @@ import {
 } from '../features/auth/authApiSlice';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
+import isValidEmail from '../utils/validator/isValidEmail';
+import {
+  ISOtoLocalString,
+  isoToDatePicker,
+} from '../utils/subscription/calculateEndDate';
 
 const Profile = () => {
   const { admin, new_Pass, message, error } = useSelector(selectAuth);
@@ -32,7 +37,7 @@ const Profile = () => {
       first_nm: admin.first_nm,
       last_nm: admin.last_nm,
       email: admin.email,
-      birth: admin.birth,
+      birth: isoToDatePicker(admin.birth),
       mobile: admin.mobile,
       address: admin.address,
     });
@@ -47,8 +52,11 @@ const Profile = () => {
     if (!profileData.first_nm || !profileData.last_nm || !profileData.email) {
       return toast.error('Name and Email are required');
     }
-    dispatch(updateProfile(profileData));
-    form.clear();
+
+    if (emailValidation() && dateOfBirthValidation()) {
+      dispatch(updateProfile(profileData));
+      form.clear();
+    }
   };
 
   const handleCurrentPass = (e) => {
@@ -67,6 +75,27 @@ const Profile = () => {
     dispatch(changePass({ password: input.new_password }));
     form.clear();
   };
+
+  const emailValidation = () => {
+    if (input.email && !isValidEmail(input.email)) {
+      toast.error('Please enter a valid email');
+      return false;
+    }
+    return true;
+  };
+
+  const dateOfBirthValidation = () => {
+    if (
+      input.birth &&
+      new Date(input.birth) >
+        new Date(Date.now() - 15 * 365 * 24 * 60 * 60 * 1000)
+    ) {
+      toast.error('Admin must be at least 15 years old');
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
     if (message) {
       toast.success(message);
@@ -163,7 +192,8 @@ const Profile = () => {
                         <h5 className='card-title d-flex justify-content-between'>
                           <span>Personal Details</span>
                           <a
-                            className='edit-link cursor-pointer'
+                            href='#'
+                            className='edit-link'
                             data-bs-target='#edit_personal_details'
                             data-bs-toggle='modal'
                             onClick={handleEditModal}
@@ -183,7 +213,9 @@ const Profile = () => {
                           <p className='col-sm-2 text-muted text-sm-end mb-0 mb-sm-3'>
                             Date of Birth
                           </p>
-                          <p className='col-sm-10'>{admin?.birth}</p>
+                          <p className='col-sm-10'>
+                            {admin?.birth && ISOtoLocalString(admin.birth)}
+                          </p>
                         </div>
                         <div className='row'>
                           <p className='col-sm-2 text-muted text-sm-end mb-0 mb-sm-3'>
@@ -239,6 +271,7 @@ const Profile = () => {
                               <input
                                 {...inputProps('email', 'email')}
                                 placeholder='Email Address'
+                                onBlur={emailValidation}
                                 className='form-control'
                               />
                             </div>
@@ -249,6 +282,7 @@ const Profile = () => {
                               <div>
                                 <input
                                   {...inputProps('birth', 'date')}
+                                  onBlur={dateOfBirthValidation}
                                   className='form-control'
                                 />
                               </div>

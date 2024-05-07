@@ -10,6 +10,7 @@ import authAppRoute from './app/router/authAppRoute.js';
 import subscriptionAppRoute from './app/router/subscriptionAppRoute.js';
 import userRoute from './router/userRoute.js';
 import roleRoute from './router/roleRoute.js';
+import filterRoute from './router/filterRoute.js';
 import adminRoute from './router/adminRoute.js';
 import permissionRoute from './router/permissionRoute.js';
 import channelRoute from './router/channelRoute.js';
@@ -19,6 +20,7 @@ import path from 'path';
 import colors from 'colors';
 import getMessagesDB from './message_to_db/getMessagesDB.js';
 import sendMessageDB from './message_to_db/sendMessageDB.js';
+import { sendMessageMiddleware } from './middleware/messageMiddleware.js';
 
 dotenv.config();
 mongoDB();
@@ -48,6 +50,7 @@ app.use('/api/v1/role', roleRoute);
 app.use('/api/v1/permission', permissionRoute);
 app.use('/api/v1/channel', channelRoute);
 app.use('/api/v1/message', messageRoute);
+app.use('/api/v1/filter', filterRoute);
 
 // App route
 app.use('/app/api/v1/auth', authAppRoute);
@@ -65,7 +68,9 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log(`Socket clint connect successfully ID ${socket.id}`);
+  console.log(
+    `Socket clint connect successfully ID ${socket.id}`.bgYellow.black
+  );
 
   socket.on('app_join_channel', async (slug, limit, userID) => {
     socket.join(slug);
@@ -83,8 +88,17 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send_message', async (slug, admin, msg) => {
+    const check = await sendMessageMiddleware(slug, admin);
+    if (!check) return;
     const newMessage = await sendMessageDB(slug, admin, msg);
     io.in(slug).emit('receive_message', slug, newMessage);
+  });
+
+  // Socket clint disconnect log
+  socket.on('disconnect', () => {
+    console.log(
+      `Socket clint disconnect successfully ID ${socket.id}`.bgRed.black
+    );
   });
 });
 

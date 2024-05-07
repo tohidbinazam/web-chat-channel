@@ -1,6 +1,6 @@
-import Message from '../model/messageModel.js';
-import Subscription from '../model/subscriptionModel.js';
-import Channel from '../model/channelModel.js';
+import Message from '../models/Message.js';
+import Subscription from '../models/Subscription.js';
+import Channel from '../models/Channel.js';
 
 const sendMessageDB = async (channelSlug, adminId, text) => {
   try {

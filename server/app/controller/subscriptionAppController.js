@@ -1,6 +1,6 @@
 import expressAsyncHandler from 'express-async-handler';
 import getMessagesDB from '../../message_to_db/getMessagesDB.js';
-import Subscription from '../../model/subscriptionModel.js';
+import Subscription from '../../models/Subscription.js';
 
 export const getAllSubscriptions = expressAsyncHandler(async (req, res) => {
   try {

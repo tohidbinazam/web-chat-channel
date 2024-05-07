@@ -1,10 +1,17 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../utils/api';
 import {
   getAllPermission,
   getAllRole,
   getAllAdmin,
 } from '../admin/adminApiSlice';
+import { setShow } from './authSlice';
+import { resetState as authReset } from './authSlice';
+import { resetState as adminReset } from '../admin/adminSlice';
+import { resetState as channelReset } from '../channel/channelSlice';
+import { resetState as chatReset } from '../chat/chatSlice';
+import { resetState as userReset } from '../user/userSlice';
+import { disconnectSocket } from '../../services/socketService';
 
 export const registerAdmin = createAsyncThunk(
   'auth/registerAdmin',
@@ -29,6 +36,9 @@ export const loginAdmin = createAsyncThunk(
       }
       return res.data;
     } catch (error) {
+      if (error.response.status == 406) {
+        dispatch(setShow(true));
+      }
       throw new Error(error.response.data.message);
     }
   }
@@ -48,14 +58,21 @@ export const me = createAsyncThunk('auth/me', async (_, { dispatch }) => {
   }
 });
 
-export const userLogout = createAsyncThunk('auth/userLogout', async () => {
-  try {
-    const res = await api.get('/auth/logout');
-    return res.data;
-  } catch (error) {
-    throw new Error(error.response.data.message);
+export const userLogout = createAsyncThunk(
+  'auth/userLogout',
+  async (_, { dispatch }) => {
+    try {
+      const res = await api.get('/auth/logout');
+      if (res.data) {
+        dispatch(resetAllState());
+        disconnectSocket();
+        return res.data;
+      }
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
   }
-});
+);
 
 export const checkPass = createAsyncThunk(
   'auth/checkPass',
@@ -119,3 +136,13 @@ export const resetPassword = createAsyncThunk(
     }
   }
 );
+
+export const resetAll = createAction('resetAll');
+
+export const resetAllState = () => (dispatch) => {
+  dispatch(authReset());
+  dispatch(adminReset());
+  dispatch(channelReset());
+  dispatch(chatReset());
+  dispatch(userReset());
+};

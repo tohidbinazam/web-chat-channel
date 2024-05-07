@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import User from '../../model/userModel.js';
+import User from '../../models/User.js';
 import { generateToken, verifyToken } from '../../utility/manageToken.js';
 import sendEmail from '../../utility/sendEmail.js';
 import crypto from 'crypto';

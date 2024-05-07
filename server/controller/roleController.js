@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
-import Role from '../model/roleModel.js';
-import Admin from '../model/adminModel.js';
+import Role from '../models/Role.js';
+import Admin from '../models/Admin.js';
 
 // Role create controller
 export const createRole = asyncHandler(async (req, res) => {
@@ -22,7 +22,7 @@ export const getAllRoles = asyncHandler(async (req, res) => {
   const roles = await Role.find({ slug: { $ne: 'super-admin' } })
     .populate('permissions')
     .sort({ createdAt: -1 });
-  res.status(200).json(roles);
+  res.status(200).json({ roles });
 });
 
 // Get role by id controller

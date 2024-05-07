@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-const userModel = Schema(
+const User = Schema(
   {
     name: {
       type: String,
@@ -44,7 +44,7 @@ const userModel = Schema(
 );
 
 // make password hash before save and update
-userModel.pre('save', function (next) {
+User.pre('save', function (next) {
   if (!this.isModified('password')) {
     return next();
   }
@@ -53,14 +53,14 @@ userModel.pre('save', function (next) {
 });
 
 // compare password
-userModel.methods.matchPassword = function (password) {
+User.methods.matchPassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
 
-userModel.methods.removePass = function () {
+User.methods.removePass = function () {
   const user = this.toObject();
   delete user.password;
   return user;
 };
 
-export default model('User', userModel);
+export default model('User', User);

@@ -48,7 +48,9 @@ const Navbar = ({ handleExpand }) => {
             </li>
             {/* )} */}
             {(admin?.role.slug === 'super-admin' ||
-              permissions?.some((p) => p.slug === 'user')) && (
+              permissions?.some(
+                (p) => p.slug === 'user' && p.status === true
+              )) && (
               <li
                 onClick={() => handleActive('user')}
                 className={activeItem === 'user' ? 'active' : ''}
@@ -91,7 +93,9 @@ const Navbar = ({ handleExpand }) => {
               </li>
             )}
             {(admin?.role.slug === 'super-admin' ||
-              permissions?.some((p) => p.slug === 'channels')) && (
+              permissions?.some(
+                (p) => p.slug === 'channels' && p.status === true
+              )) && (
               <li className='submenu'>
                 <Link
                   onClick={() => {
@@ -107,13 +111,15 @@ const Navbar = ({ handleExpand }) => {
                   <span className='menu-arrow'></span>
                 </Link>
                 <ul style={{ display: isSubMenuOpen ? 'block' : 'none' }}>
-                  {channels.map((channel, index) => (
-                    <li key={index}>
-                      <Link to={`/channel/${channel.slug}`}>
-                        {channel.name}
-                      </Link>
-                    </li>
-                  ))}
+                  {channels.map((channel, index) =>
+                    channel.status === true ? (
+                      <li key={index}>
+                        <Link to={`/channel/${channel.slug}`}>
+                          {channel.name}
+                        </Link>
+                      </li>
+                    ) : null
+                  )}
                 </ul>
               </li>
             )}

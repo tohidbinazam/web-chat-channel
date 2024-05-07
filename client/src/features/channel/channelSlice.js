@@ -6,15 +6,19 @@ import {
   updateChannel,
 } from './channelApiSlice';
 
+const initialState = {
+  channels: [],
+  message: null,
+  error: null,
+  loading: false,
+};
+
 const channelSlice = createSlice({
   name: 'channel',
-  initialState: {
-    channels: [],
-    message: null,
-    error: null,
-    loading: false,
-  },
+  initialState,
   reducers: {
+    // eslint-disable-next-line no-unused-vars
+    resetState: (_) => initialState,
     clearMsg: (state) => {
       state.message = null;
       state.error = null;
@@ -60,6 +64,6 @@ const channelSlice = createSlice({
 
 export const selectChannel = (state) => state.channel;
 
-export const { clearMsg } = channelSlice.actions;
+export const {resetState, clearMsg } = channelSlice.actions;
 
 export default channelSlice.reducer;

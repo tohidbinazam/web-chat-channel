@@ -7,16 +7,20 @@ import {
   updateChat,
 } from './chatApiSlice';
 
+const initialState = {
+  chats: {},
+  socket: '',
+  message: null,
+  error: null,
+  loading: false,
+};
+
 const chatSlice = createSlice({
   name: 'chat',
-  initialState: {
-    chats: {},
-    socket: '',
-    message: null,
-    error: null,
-    loading: false,
-  },
+  initialState,
   reducers: {
+    // eslint-disable-next-line no-unused-vars
+    resetState: (_) => initialState,
     clearMsg: (state) => {
       state.message = null;
       state.error = null;
@@ -82,6 +86,7 @@ const chatSlice = createSlice({
 
 export const selectChat = (state) => state.chat;
 
-export const { clearMsg, setMessages, setNewMessage } = chatSlice.actions;
+export const { resetState, clearMsg, setMessages, setNewMessage } =
+  chatSlice.actions;
 
 export default chatSlice.reducer;

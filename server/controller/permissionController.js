@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import Permission from '../model/permissionModel.js';
+import Permission from '../models/Permission.js';
 
 // Permission create controller
 export const createPermission = asyncHandler(async (req, res) => {

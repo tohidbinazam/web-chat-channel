@@ -1,15 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { addUser, deleteUser, getAllUser, updateUser } from './userApiSlice';
+import {
+  addUser,
+  deleteUser,
+  findUser,
+  getAllUser,
+  updateUser,
+} from './userApiSlice';
+
+const initialState = {
+  users: [],
+  message: null,
+  error: null,
+  loading: false,
+};
 
 const userSlice = createSlice({
   name: 'user',
-  initialState: {
-    users: [],
-    message: null,
-    error: null,
-    loading: false,
-  },
+  initialState,
   reducers: {
+    // eslint-disable-next-line no-unused-vars
+    resetState: (_) => initialState,
     clearMsg: (state) => {
       state.message = null;
       state.error = null;
@@ -28,6 +38,21 @@ const userSlice = createSlice({
         state.users = payload.users;
         state.loading = false;
       })
+
+      .addCase(findUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(findUser.rejected, (state, action) => {
+        state.error = action.error.message;
+        state.users = [];
+        state.loading = false;
+      })
+      .addCase(findUser.fulfilled, (state, { payload }) => {
+        state.users = [payload.user];
+        state.loading = false;
+        state.message = payload.message;
+      })
+
       .addCase(addUser.rejected, (state, action) => {
         state.error = action.error.message;
       })
@@ -58,6 +83,6 @@ const userSlice = createSlice({
 
 export const selectUser = (state) => state.user;
 
-export const { clearMsg } = userSlice.actions;
+export const { resetState, clearMsg } = userSlice.actions;
 
 export default userSlice.reducer;

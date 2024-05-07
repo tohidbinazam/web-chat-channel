@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const roleModel = Schema(
+const Role = Schema(
   {
     name: {
       type: String,
@@ -30,7 +30,7 @@ const roleModel = Schema(
 );
 
 // add slug before save
-roleModel.pre('save', function (next) {
+Role.pre('save', function (next) {
   if (!this.isModified('name')) {
     next();
   }
@@ -39,8 +39,8 @@ roleModel.pre('save', function (next) {
 });
 
 // make slug
-roleModel.methods.makeSlug = function () {
+Role.methods.makeSlug = function () {
   return this.name.toLowerCase().split(' ').join('-');
 };
 
-export default model('Role', roleModel);
+export default model('Role', Role);

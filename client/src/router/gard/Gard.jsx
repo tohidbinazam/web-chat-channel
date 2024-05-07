@@ -1,10 +1,11 @@
 import { useSelector } from 'react-redux';
 import PrivateRouter from '../PrivateRouter';
 import PublicRouter from '../PublicRouter';
+import { selectAuth } from '../../features/auth/authSlice';
 
 const Gard = () => {
-  const { token } = useSelector((state) => state.auth);
-  return token ? <PrivateRouter /> : <PublicRouter />;
+  const { isLoggedIn } = useSelector(selectAuth);
+  return isLoggedIn ? <PrivateRouter /> : <PublicRouter />;
 };
 
 export default Gard;

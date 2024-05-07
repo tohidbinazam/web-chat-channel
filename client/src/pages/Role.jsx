@@ -119,14 +119,14 @@ const Role = () => {
                 data-bs-toggle='modal'
                 className='btn btn-primary float-end mt-2'
               >
-                Add
+                Create
               </a>
             </div>
           </div>
         </div>
 
         <DefaultModal
-          title={`${input.id ? 'Edit' : 'Add'} Role`}
+          title={`${input.id ? 'Edit' : 'Create'} Role`}
           id='addAdmin'
           clearFrom={clearFrom}
         >
@@ -172,7 +172,7 @@ const Role = () => {
               data-bs-dismiss='modal'
               className='btn btn-primary w-100'
             >
-              Save Changes
+              {input.id ? 'Save Changes' : 'Create Role'}
             </button>
           </form>
         </DefaultModal>

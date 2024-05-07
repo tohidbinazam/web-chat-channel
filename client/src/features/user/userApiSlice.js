@@ -7,6 +7,7 @@ export const getAllUser = createAsyncThunk('user/getAllUser', async () => {
     const res = await api.get('/user');
     return res.data;
   } catch (error) {
+    // throw new Error(error.response.data);
     throw new Error(error.response.data.message);
   }
 });
@@ -14,6 +15,15 @@ export const getAllUser = createAsyncThunk('user/getAllUser', async () => {
 export const addUser = createAsyncThunk('user/addUser', async (data) => {
   try {
     const res = await api.post('/user', data);
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response.data.message);
+  }
+});
+
+export const findUser = createAsyncThunk('user/findUser', async (data) => {
+  try {
+    const res = await api.post('/user/find', data);
     return res.data;
   } catch (error) {
     throw new Error(error.response.data.message);

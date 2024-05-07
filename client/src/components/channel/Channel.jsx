@@ -123,7 +123,9 @@ const Channel = () => {
 
                     <hr />
                     {(admin?.role.slug === 'super-admin' ||
-                      permissions?.some((p) => p.slug === 'channels')) && (
+                      permissions?.some(
+                        (p) => p.slug === 'send-message' && p.status === true
+                      )) && (
                       <div className='send-box'>
                         <input
                           onKeyUp={(e) => e.key === 'Enter' && handleSend()}

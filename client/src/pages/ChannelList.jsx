@@ -96,14 +96,14 @@ const ChannelList = () => {
                 data-bs-toggle='modal'
                 className='btn btn-primary float-end mt-2'
               >
-                Add
+                Create
               </a>
             </div>
           </div>
         </div>
 
         <DefaultModal
-          title={`${input.id ? 'Edit' : 'Add'} Channel`}
+          title={`${input.id ? 'Edit' : 'Create'} Channel`}
           id='addChannel'
           clearFrom={clearFrom}
         >
@@ -130,7 +130,7 @@ const ChannelList = () => {
               data-bs-dismiss='modal'
               className='btn btn-primary w-100'
             >
-              Save Changes
+              {input.id ? 'Save Changes' : 'Create Channel'}
             </button>
           </form>
         </DefaultModal>

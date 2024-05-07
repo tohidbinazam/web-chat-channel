@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const permissionModel = Schema(
+const Permission = Schema(
   {
     name: {
       type: String,
@@ -23,7 +23,7 @@ const permissionModel = Schema(
 );
 
 // add slug before save
-permissionModel.pre('save', function (next) {
+Permission.pre('save', function (next) {
   if (!this.isModified('name')) {
     next();
   }
@@ -32,8 +32,8 @@ permissionModel.pre('save', function (next) {
 });
 
 // make slug
-permissionModel.methods.makeSlug = function () {
+Permission.methods.makeSlug = function () {
   return this.name.toLowerCase().split(' ').join('-');
 };
 
-export default model('Permission', permissionModel);
+export default model('Permission', Permission);

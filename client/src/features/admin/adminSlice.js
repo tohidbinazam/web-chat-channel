@@ -14,17 +14,21 @@ import {
   updateAdmin,
 } from './adminApiSlice';
 
+const initialState = {
+  admins: null,
+  permission: null,
+  role: [],
+  message: null,
+  error: null,
+  loading: false,
+};
+
 const userSlice = createSlice({
   name: 'admin',
-  initialState: {
-    admins: null,
-    permission: null,
-    role: null,
-    message: null,
-    error: null,
-    loading: false,
-  },
+  initialState,
   reducers: {
+    // eslint-disable-next-line no-unused-vars
+    resetState: (_) => initialState,
     clearMsg: (state) => {
       state.message = null;
       state.error = null;
@@ -74,7 +78,7 @@ const userSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(getAllRole.fulfilled, (state, { payload }) => {
-        state.role = payload;
+        state.role = payload.roles;
       })
       .addCase(addRole.rejected, (state, action) => {
         state.error = action.error.message;
@@ -140,6 +144,6 @@ const userSlice = createSlice({
 
 export const selectAdmin = (state) => state.admin;
 
-export const { clearMsg } = userSlice.actions;
+export const { resetState, clearMsg } = userSlice.actions;
 
 export default userSlice.reducer;

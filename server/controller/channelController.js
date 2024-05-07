@@ -1,10 +1,10 @@
 import asyncHandler from 'express-async-handler';
-import Channel from '../model/channelModel.js';
+import Channel from '../models/Channel.js';
 import sendMessageDB from '../message_to_db/sendMessageDB.js';
 import getMessagesDB from '../message_to_db/getMessagesDB.js';
-import Subscription from '../model/subscriptionModel.js';
-import Message from '../model/messageModel.js';
-import User from '../model/userModel.js';
+import Subscription from '../models/Subscription.js';
+import Message from '../models/Message.js';
+import User from '../models/User.js';
 
 // Channel create controller
 export const createChannel = asyncHandler(async (req, res) => {

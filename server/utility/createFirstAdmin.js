@@ -1,4 +1,4 @@
-import Admin from '../model/adminModel.js';
+import Admin from '../models/Admin.js';
 import sendEmail from './sendEmail.js';
 
 const createFirstAdmin = async () => {

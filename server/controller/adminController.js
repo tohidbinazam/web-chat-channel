@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import Admin from '../model/adminModel.js';
+import Admin from '../models/Admin.js';
 import sendEmail from '../utility/sendEmail.js';
 import bcrypt from 'bcryptjs';
 

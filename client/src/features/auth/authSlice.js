@@ -11,29 +11,37 @@ import {
   userLogout,
 } from './authApiSlice';
 
+const initialState = {
+  isLoggedIn: false,
+  admin: null,
+  permissions: null,
+  new_Pass: false,
+  message: null,
+  error: null,
+  loading: false,
+  show: false,
+};
+
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    token: false,
-    admin: null,
-    permissions: null,
-    new_Pass: false,
-    message: null,
-    error: null,
-    loading: false,
-  },
+  initialState,
   reducers: {
+    // eslint-disable-next-line no-unused-vars
+    resetState: (_) => initialState,
     clearMsg: (state) => {
       state.message = null;
       state.error = null;
     },
     logout: (state) => {
-      state.token = false;
+      state.isLoggedIn = false;
       state.admin = null;
       state.permissions = null;
     },
-    addToken: (state) => {
-      state.token = true;
+    setShow: (state, { payload }) => {
+      state.show = payload;
+    },
+    loginStatus: (state) => {
+      state.isLoggedIn = true;
     },
   },
   extraReducers: (builder) => {
@@ -55,7 +63,7 @@ const authSlice = createSlice({
       })
       .addCase(resetPassword.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.token = true;
+        state.isLoggedIn = true;
         state.admin = payload.admin;
         state.permissions = payload.admin.role.permissions;
         state.message = payload.message;
@@ -121,7 +129,8 @@ const authSlice = createSlice({
       })
       .addCase(loginAdmin.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.token = true;
+        state.show = false;
+        state.isLoggedIn = true;
         state.admin = payload.admin;
         state.permissions = payload.admin.role.permissions;
         state.message = payload.message;
@@ -140,19 +149,19 @@ const authSlice = createSlice({
       })
       .addCase(me.rejected, (state, action) => {
         state.loading = false;
-        state.token = false;
+        state.isLoggedIn = false;
         state.error = action.error.message;
       })
       .addCase(userLogout.fulfilled, (state, { payload }) => {
         state.loading = false;
-        state.token = false;
+        state.isLoggedIn = false;
         state.admin = null;
         state.permissions = null;
         state.message = payload.message;
       })
       .addCase(userLogout.rejected, (state, action) => {
         state.loading = false;
-        state.token = false;
+        state.isLoggedIn = false;
         state.error = action.error.message;
       });
   },
@@ -160,6 +169,7 @@ const authSlice = createSlice({
 
 export const selectAuth = (state) => state.auth;
 
-export const { clearMsg, logout, addToken } = authSlice.actions;
+export const { resetState, clearMsg, logout, setShow, loginStatus } =
+  authSlice.actions;
 
 export default authSlice.reducer;

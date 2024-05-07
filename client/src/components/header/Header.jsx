@@ -4,7 +4,6 @@ import photo from '../../assets/img/profiles/avatar-01.jpg';
 import { useDispatch, useSelector } from 'react-redux';
 import { userLogout } from '../../features/auth/authApiSlice';
 import { Link } from 'react-router-dom';
-// import { disconnectSocket } from '../../services/socketService';
 
 // eslint-disable-next-line react/prop-types
 const Header = ({ handleNav }) => {
@@ -14,7 +13,6 @@ const Header = ({ handleNav }) => {
   const handleLogout = (e) => {
     e.preventDefault();
     dispatch(userLogout());
-    // disconnectSocket();
   };
 
   return (

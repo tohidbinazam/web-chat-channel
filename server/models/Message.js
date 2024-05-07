@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-const messageModel = Schema(
+const Message = Schema(
   {
     channel: {
       type: Schema.Types.ObjectId,
@@ -26,4 +26,4 @@ const messageModel = Schema(
   { timestamps: true }
 );
 
-export default model('Message', messageModel);
+export default model('Message', Message);

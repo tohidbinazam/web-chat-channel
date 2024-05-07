@@ -1,5 +1,5 @@
-import Channel from '../model/channelModel.js';
-import Message from '../model/messageModel.js';
+import Channel from '../models/Channel.js';
+import Message from '../models/Message.js';
 
 const getMessagesDB = async (slug, limit = 20, userID) => {
   const channel = await Channel.findOne({ slug });

@@ -1,5 +1,5 @@
 import { verifyToken } from '../../utility/manageToken.js';
-import User from '../../model/userModel.js';
+import User from '../../models/User.js';
 
 const authCheck = (token) => {
   return async (req, res, next) => {

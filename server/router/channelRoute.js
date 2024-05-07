@@ -9,10 +9,11 @@ import {
   sendMessageAPI,
 } from '../controller/channelController.js';
 import authMiddleware from '../middleware/authMiddleware.js';
+import permissionMiddleware from '../middleware/permissionMiddleware.js';
 
 const router = express.Router();
 
-router.use(authMiddleware);
+router.use(authMiddleware, permissionMiddleware('channels'));
 
 router.route('/').get(getAllChannels).post(createChannel);
 router

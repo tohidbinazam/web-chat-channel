@@ -1,5 +1,5 @@
-import Message from '../model/messageModel.js';
-import Channel from '../model/channelModel.js';
+import Message from '../models/Message.js';
+import Channel from '../models/Channel.js';
 import asyncHandler from 'express-async-handler';
 import getMessagesDB from '../message_to_db/getMessagesDB.js';
 import sendMessageDB from '../message_to_db/sendMessageDB.js';

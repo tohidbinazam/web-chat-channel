@@ -5,12 +5,13 @@ import { toast } from 'react-toastify';
 import { loginAdmin } from '../features/auth/authApiSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
-import { clearMsg } from '../features/auth/authSlice';
+import { clearMsg, selectAuth, setShow } from '../features/auth/authSlice';
+import swal from 'sweetalert';
 
 const Login = () => {
   const dispatch = useDispatch();
 
-  const { message, error } = useSelector((state) => state.auth);
+  const { message, error, show } = useSelector(selectAuth);
 
   const [input, , inputChange] = useInput({
     email: '',
@@ -24,6 +25,27 @@ const Login = () => {
     }
     dispatch(loginAdmin(input));
   };
+
+  const handleNext = () => {
+    swal({
+      title: 'You are already logged in',
+      text: 'Do you want to continue with this device?',
+      icon: 'warning',
+      button: 'Continue',
+    }).then((willNext) => {
+      if (willNext) {
+        dispatch(loginAdmin({ ...input, next: true }));
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (show) {
+      handleNext();
+      dispatch(setShow(false));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, show]);
 
   useEffect(() => {
     // Show success message

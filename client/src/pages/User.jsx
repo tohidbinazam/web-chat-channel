@@ -19,6 +19,7 @@ import calculateEndDate, {
   isoToDatePicker,
 } from '../utils/subscription/calculateEndDate';
 import isValidEmail from '../utils/validator/isValidEmail';
+import FilterTab from '../components/filter/FilterTab';
 
 const User = () => {
   const dispatch = useDispatch();
@@ -71,9 +72,9 @@ const User = () => {
     setValue({ subscription: updatedSubscription });
   };
 
-  const handelTemporary = (e) => {
+  const handleTemporary = (e) => {
     const { name, value, dataset } = e.target;
-    const { channel } = dataset; // Channel unique _id from dataset
+    const { channel, subscription } = dataset; // Channel and subscriptionID _id from dataset
 
     const isSubscribed = input.subscription.some(
       (item) => item.channel === channel
@@ -86,16 +87,20 @@ const User = () => {
           channel: channel,
           plan: name,
           endDate: date,
-          status: true, // Add status key for new subscription
+          status: value ? true : false,
         }
       : null;
 
     let updatedSubscription;
 
     if (isSubscribed) {
-      updatedSubscription = input.subscription.map((item) =>
-        item.channel === channel ? { ...item, ...model } : item
-      );
+      updatedSubscription = model
+        ? input.subscription.map((item) =>
+            item.channel === channel ? { ...item, ...model } : item
+          )
+        : subscription
+        ? input.subscription
+        : input.subscription.filter((item) => item.channel !== channel);
     } else {
       updatedSubscription = model
         ? [...input.subscription, model]
@@ -158,15 +163,20 @@ const User = () => {
     dispatch(updateUser({ id: item._id, data: { status: !item.status } }));
   };
 
+  const handelRandomPass = () => {
+    const randomPass = Math.random().toString(36).slice(-8);
+    setValue({ password: randomPass });
+  };
+
   useEffect(() => {
     if (message) {
       toast.success(message);
+      dispatch(clearMsg());
     }
     if (error) {
       toast.error(error);
+      dispatch(clearMsg());
     }
-
-    dispatch(clearMsg());
   }, [dispatch, error, message]);
 
   useEffect(() => {
@@ -223,6 +233,8 @@ const User = () => {
           </div>
         </div>
 
+        <FilterTab />
+
         <DefaultModal
           title={`${input.id ? 'Edit' : 'Add'} User`}
           id='addUser'
@@ -263,6 +275,14 @@ const User = () => {
                         placeholder='User password'
                         className='form-control'
                       />
+                      <a href='#'>
+                        <span
+                          onClick={handelRandomPass}
+                          className='badge text-bg-primary'
+                        >
+                          Random password
+                        </span>
+                      </a>
                     </div>
                   </div>
                   <div className='col-12 col-sm-6'>
@@ -327,12 +347,17 @@ const User = () => {
                           className='form-control'
                           name='temporary'
                           data-channel={item._id}
+                          data-subscription={
+                            input.subscription.find(
+                              (sub) => sub.channel === item._id
+                            )?._id
+                          }
                           value={isoToDatePicker(
                             input.subscription.find(
                               (sub) => sub.channel === item._id
                             )?.endDate || ''
                           )}
-                          onChange={handelTemporary}
+                          onChange={handleTemporary}
                           type='date'
                         />
                       </div>
@@ -371,7 +396,7 @@ const User = () => {
               data-bs-dismiss='modal'
               className='btn btn-primary w-100'
             >
-              Save Changes
+              {input.id ? 'Save Changes' : 'Add User'}
             </button>
           </form>
         </DefaultModal>
@@ -394,6 +419,7 @@ const User = () => {
                           <th>No</th>
                           <th>Name</th>
                           <th>Email</th>
+                          <th>Mobile</th>
                           {/* <th>Role</th> */}
                           <th>UpdatedAt</th>
                           <th>Status</th>
@@ -401,11 +427,12 @@ const User = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {users?.map((item, index) => (
+                        {users.map((item, index) => (
                           <tr key={index}>
                             <td>{index + 1}</td>
                             <td>{item.name}</td>
                             <td>{item.email}</td>
+                            <td>{item.mobile}</td>
                             {/* <td>{item.role.name}</td> */}
                             <td>{timeCal(item.updatedAt)}</td>
 
